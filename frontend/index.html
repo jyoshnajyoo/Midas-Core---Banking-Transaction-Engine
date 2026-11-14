@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Midas Core</title>
+<style>
+  body{
+    background-color: #3f306f;
+    font-family: Arial;
+    text-align: center;
+  }
+  h1{
+    color: yellow;
+  }
+  p{
+    color: #c35555;
+  }
+  .box{
+    background: #efedee;
+    width: 400px;
+    margin: auto;
+    margin-top: 30px;
+    padding: 20px;
+    border-radius: 15px;
+    border: 2px solid #ff9900;
+  }
+  input{
+    width: 90%;
+    padding: 10px;
+    margin-top: 10px;
+    border: 2px solid #0099ff;
+    border-radius: 8px;
+    background: white;
+  }
+  button{
+    padding: 10px 20px;
+    margin-top: 15px;
+    background: gold;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+  }
+  table{
+    width: 100%;
+    margin-top: 15px;
+    background: white;
+  }
+  th{
+    background: #2c0b7d;
+    color: white;
+    padding: 8px;
+  }
+  td{
+    padding: 8px;
+  }
+</style>
+</head>
+<body>
+
+<h1>Midas Core</h1>
+<p><B>Money Transfer Project</B></p>
+
+<div class="box">
+  <h3>Send Money</h3>
+  From : <br>
+  <input type="text" id="fromAcc" placeholder="ex: Jyoshna"> <br><br>
+  To : <br>
+  <input type="text" id="toAcc" placeholder="ex: Sravya"> <br><br>
+  Amount : <br>
+  <input type="number" id="amt" placeholder="ex: 500"> <br><br>
+  <button onclick="send()">Send</button>
+  <p id="msg"></p>
+</div>
+
+<div class="box">
+  <h3>All Transactions</h3>
+  <button onclick="getAll()">Show All</button>
+  <table border="1">
+    <tr>
+      <th>From</th>
+      <th>To</th>
+      <th>Amount</th>
+      <th>Status</th>
+    </tr>
+    <tbody id="myTable"></tbody>
+  </table>
+</div>
+
+<script>
+  // send money function
+  async function send(){
+    var from = document.getElementById("fromAcc").value;
+    var to = document.getElementById("toAcc").value;
+    var amt = document.getElementById("amt").value;
+
+    var myData = {
+      fromAccount: from,
+      toAccount: to,
+      amount: amt
+    };
+
+    let res = await fetch("http://localhost:8080/api/transactions", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify(myData)
+    });
+
+    if(res.ok){
+      document.getElementById("msg").innerHTML = "<B>Transfer Success</B>";
+      getAll();
+    } else {
+      document.getElementById("msg").innerHTML = "Something went wrong";
+    }
+  }
+
+  // get all transactions
+  async function getAll(){
+    let res = await fetch("http://localhost:8080/api/transactions");
+    let data = await res.json();
+
+    var rows = "";
+    for(let i=0; i<data.length; i++){
+      rows = rows + "<tr><td>" + data[i].fromAccount + "</td><td>" + data[i].toAccount + "</td><td>" + data[i].amount + "</td><td>" + data[i].status + "</td></tr>";
+    }
+    document.getElementById("myTable").innerHTML = rows;
+  }
+
+  getAll();
+</script>
+
+</body>
+</html>
